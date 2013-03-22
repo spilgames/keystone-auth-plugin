@@ -14,5 +14,10 @@
 # limitations under the License.
 # 
 
-version_info = (0 , 1, 0)
-version = __version__ = ".".join(map(str, version_info))
+try:
+    with open('VERSION') as f:
+        version = f.read().strip()
+except:
+    print "could not read version file"
+    version_info = (0 , 0, 0)
+    version = __version__ = ".".join(map(str, version_info))
