@@ -18,7 +18,7 @@ import os
 from setuptools import setup
 
 from spil_keystone_auth_plugin import __version__ as version
-name = "spil_keystone_auth_plugin"
+name = "spil-keystone-auth-plugin"
 
 
 setup(
