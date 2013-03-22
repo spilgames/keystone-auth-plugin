@@ -16,7 +16,7 @@
 
 try:
     with open('VERSION') as f:
-        version = f.read().strip()
+        version = __version__ = f.read().strip()
 except:
     print "could not read version file"
     version_info = (0 , 0, 0)
