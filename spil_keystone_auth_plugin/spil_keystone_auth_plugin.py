@@ -28,20 +28,43 @@ class SheldonAuth(wsgi.Middleware):
         return True
 
     def do_auth(self, environ):
-        '''Performs the actual authentication on the request'''
+        '''Performs the actual authentication on the request
+        This will check a dictionary to see if there is a alias for this user'''
         auth = self.get_auth_details(environ)
+        userlookup = False
+        userlookupdict = self.get_userlookuplist()
         if auth == None:
             self.log.debug('Not authenticating to Sheldon')
             return None
+
+        if auth[0] in userlookupdict.keys():
+            userlookup = str(auth[0])
+            self.log.info("Found a alias for this user")
+            auth = (userlookupdict[auth[0]], auth[1])
         url = self.config.get('url')
         verify = self.str2bool(self.config.get('verify_ssl', 'True'))
         r = requests.get(url, auth=auth, verify=verify)
         if r.status_code == 200:
+            if userlookup:
+                self.log.info('Aliased admin user: authenticated user {0} against Sheldon'.format(auth[0]))
+                return userlookup
             self.log.info('Authenticated user {0} against Sheldon'.format(auth[0]))
             return auth[0]
 
         self.log.info('Failed authenticating user {0} against Sheldon'.format(auth[0]))
         return None
+
+    def get_userlookuplist(self):
+        userlookupdict = {}
+        aliascsv = self.config.get('aliaslist')
+        try:
+            aliaslines = [line.strip() for line in open(aliascsv)]
+        except:
+            self.log.info('Failed to open alias file, aliases disabled')
+            return userlookupdict
+        for alias in aliaslines:
+            userlookupdict[alias.split(',')[0]] = alias.split(',')[1].strip()
+        return userlookupdict
 
     def get_auth_details(self, environ):
         '''Extracts auth details from requests and returns a tuple (username, password) if found,

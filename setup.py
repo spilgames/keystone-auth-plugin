@@ -31,7 +31,7 @@ setup(
     url = "https://github.com/spilgames/keystone-auth-plugin",
     packages=['spil_keystone_auth_plugin'],
     classifiers=[
-        "Development Status :: 1 - Alpha",
+        "Development Status :: 2 - Beta",
         "Programming Language :: Python :: 2.6",
         "License :: OSI Approved :: Apache Software License",
         "Environment :: No Input/Output (Daemon)",
