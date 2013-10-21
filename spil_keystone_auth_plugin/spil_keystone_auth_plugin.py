@@ -5,7 +5,8 @@
 #from urlparse import urlparse
 #from eventlet.green import httplib
 
-from keystone.common import logging, wsgi
+from keystone.common import wsgi
+from keystone.openstack.common import log as logging
 import webob
 import requests
 
