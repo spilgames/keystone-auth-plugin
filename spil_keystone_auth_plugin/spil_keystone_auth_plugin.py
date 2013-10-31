@@ -1,13 +1,17 @@
 #
 # Description
-# Authenticates against sheldon 
+# Authenticates against sheldon
 #
 #from urlparse import urlparse
 #from eventlet.green import httplib
 
+# Make sure we're using the patched libraries so we don't block keystone
+import eventlet
+eventlet.monkey_patch(socket=True, select=True)
+
+from keystone.common import cache
 from keystone.common import wsgi
 from keystone.openstack.common import log as logging
-import webob
 import requests
 
 
@@ -16,7 +20,6 @@ class SheldonAuth(wsgi.Middleware):
         self.app = app
         self.config = conf
         self.log = logging.getLogger(__name__)
-        #super(SheldonAuth, self).__init__(*args, **kwargs)
 
     def __call__(self, environ, start_response):
         return self.process_request(environ, start_response)
@@ -27,6 +30,14 @@ class SheldonAuth(wsgi.Middleware):
         if str in ['false', 'False', 'no', '0']:
             return False
         return True
+
+    @cache.on_arguments(expiration_time=600)
+    def do_sheldon_call(self, url, auth, verify):
+        r = requests.get(url, auth=auth, verify=verify)
+        if r.status_code == 200:
+            return True
+        else:
+            return False
 
     def do_auth(self, environ):
         '''Performs the actual authentication on the request
@@ -44,8 +55,7 @@ class SheldonAuth(wsgi.Middleware):
             auth = (userlookupdict[auth[0]], auth[1])
         url = self.config.get('url')
         verify = self.str2bool(self.config.get('verify_ssl', 'True'))
-        r = requests.get(url, auth=auth, verify=verify)
-        if r.status_code == 200:
+        if self.do_sheldon_call(url, auth, verify):
             if userlookup:
                 self.log.info('Aliased admin user: authenticated user {0} against Sheldon'.format(auth[0]))
                 return userlookup
@@ -55,6 +65,7 @@ class SheldonAuth(wsgi.Middleware):
         self.log.info('Failed authenticating user {0} against Sheldon'.format(auth[0]))
         return None
 
+    @cache.on_arguments(expiration_time=600)
     def get_userlookuplist(self):
         userlookupdict = {}
         aliascsv = self.config.get('aliaslist')
@@ -100,4 +111,3 @@ def filter_factory(global_conf, **local_conf):
     def auth_filter(app):
         return SheldonAuth(app, conf)
     return auth_filter
-
