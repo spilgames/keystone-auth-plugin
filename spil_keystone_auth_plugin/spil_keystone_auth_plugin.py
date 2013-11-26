@@ -33,10 +33,14 @@ class SheldonAuth(wsgi.Middleware):
 
     @cache.on_arguments(expiration_time=600)
     def do_sheldon_call(self, url, auth, verify):
-        r = requests.get(url, auth=auth, verify=verify)
-        if r.status_code == 200:
-            return True
-        else:
+        try:
+            r = requests.get(url, auth=auth, verify=verify, timeout=2)
+            if r.status_code == 200:
+                return True
+            else:
+                return False
+        except:
+            self.log.error('Sheldon connection timeout')
             return False
 
     def do_auth(self, environ):
