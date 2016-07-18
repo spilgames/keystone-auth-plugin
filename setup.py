@@ -32,7 +32,7 @@ setup(
     packages=['spil_keystone_auth_plugin'],
     classifiers=[
         "Development Status :: 2 - Beta",
-        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2",
         "License :: OSI Approved :: Apache Software License",
         "Environment :: No Input/Output (Daemon)",
         "Operating System :: POSIX :: Linux",
