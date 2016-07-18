@@ -28,11 +28,18 @@ Middleware for authenticating connecting keystone to an external service
 python setup.py build
 
 %install
-python setup.py install --root=%{buildroot} --record=INSTALLED_FILES
+python setup.py install --root=%{buildroot}
 
 %clean
 rm -rf %{buildroot}
 
-%files -f INSTALLED_FILES
+%files
 %defattr(-,root,root)
-%{python_sitelib}/*
+
+%if 0%{?el7}
+/usr/lib/python2.7/site-packages/spil_keystone_auth_plugin
+/usr/lib/python2.7/site-packages/spil_keystone_auth_plugin-%{version}-py2.7.egg-info
+%else
+/usr/lib/python2.6/site-packages/spil_keystone_auth_plugin
+/usr/lib/python2.6/site-packages/spil_keystone_auth_plugin-%{version}-py2.6.egg-info
+%endif
