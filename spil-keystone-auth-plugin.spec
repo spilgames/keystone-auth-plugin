@@ -36,10 +36,5 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 
-%if 0%{?el7}
 /usr/lib/python2.7/site-packages/spil_keystone_auth_plugin
 /usr/lib/python2.7/site-packages/spil_keystone_auth_plugin-%{version}-py2.7.egg-info
-%else
-/usr/lib/python2.6/site-packages/spil_keystone_auth_plugin
-/usr/lib/python2.6/site-packages/spil_keystone_auth_plugin-%{version}-py2.6.egg-info
-%endif
